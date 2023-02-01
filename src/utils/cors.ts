@@ -1,7 +1,7 @@
 import cors from "cors";
 
 const corsOptions = {
-  origin: "http://localhost:4100",
+  origin: ["https://jc-project.vercel.app/", "jambcourses.com.ng"],
   optionsSuccessStatus: 200,
 };
 
