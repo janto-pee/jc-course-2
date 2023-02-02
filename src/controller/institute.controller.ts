@@ -98,9 +98,25 @@ export async function getUniversityInstituesHandler(
   req: Request,
   res: Response
 ) {
+  let page =
+    typeof req.query.page !== "undefined" ? Number(req.query.page) - 1 : 0;
+  let limit =
+    typeof req.query.lmtno !== "undefined" ? Number(req.query.lmtno) : 10;
+
   try {
-    const courses = await getUniversityInstitutes();
-    return res.status(200).send(courses);
+    const institutes = await getUniversityInstitutes(page, limit);
+    institutes.length > 15
+      ? institutes.filter((item, index) => index < 15)
+      : institutes;
+    const allInstitute = await InstituteModel.countDocuments();
+
+    const response = {
+      total: allInstitute,
+      page: page + 1,
+      "displayed institutes": institutes.length,
+      institutes,
+    };
+    return res.status(200).send(response);
   } catch (error) {
     return res.status(400).send(error);
   }
@@ -114,46 +130,48 @@ export async function getFilteredInstitutesHandler(
     let page =
       typeof req.query.page !== "undefined" ? Number(req.query.page) - 1 : 0;
     let limit =
-      typeof req.query.limitno !== "undefined" ? Number(req.query.limitno) : 5;
+      typeof req.query.lmtno !== "undefined" ? Number(req.query.lmtno) : 5;
     let search = req.query.search || "";
     let state: any = req.query.state || "all";
     let institutions: any = req.query.institutions || "all";
 
     search === ""
       ? (search = {})
-      : (search = { name: { $regex: search, $options: "i" } });
-
-    //get all distinct fields
-    const distinctFields = await getDistinctInstituteFields();
+      : (search = { fullname: { $regex: search, $options: "i" } });
 
     state === "all"
-      ? (state = [...distinctFields.state])
-      : (state = req.query.state?.toString().split(","));
+      ? (state = {})
+      : (state = { state: req.query.state?.toString().split(",") });
 
-    institutions === "all"
-      ? (institutions = [...distinctFields.institution])
-      : (institutions = req.query.institutions?.toString().split(","));
+    institutions === "all" || ""
+      ? (institutions = {})
+      : (institutions = {
+          institutionType: req.query.institutions?.toString().split(","),
+        });
 
-    const courses = await InstituteModel.find(search)
-      .where("institutions, state")
-      .in([...institutions, ...state])
-      .skip(page * limit)
-      .limit(limit);
+    const filter = {
+      ...search,
+      ...state,
+      ...institutions,
+    };
 
-    if (!courses) return res.status(404).send("none found");
+    const institutes = await InstituteModel.find({ ...filter });
+    institutes.length > 15
+      ? institutes.filter((item, index) => index < 15)
+      : institutes;
 
-    const total = await InstituteModel.countDocuments({
-      institute: { $in: [...institutions] },
-      search,
-    });
+    if (!institutes) return res.status(404).send("none found");
+
+    const total = await InstituteModel.countDocuments();
+    const distinctFields = await getDistinctInstituteFields();
 
     const response = {
       error: false,
       total,
       page: page + 1,
-      limit,
-      institute: [...institutions],
-      courses,
+      "displayed result": institutes.length,
+      distinctFields,
+      institutes,
     };
 
     return res.status(200).send(response);

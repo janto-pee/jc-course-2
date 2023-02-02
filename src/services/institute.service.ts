@@ -23,9 +23,19 @@ export async function deleteInstitute(id: string) {
   const institute = await InstituteModel.findByIdAndDelete(id);
   return institute;
 }
-export async function getUniversityInstitutes() {
+
+export async function getFeaturedInstitute(page: number, limit: number) {
+  const Course = await InstituteModel.find({ isFeatured: true })
+    .select("_id schools course utme address years degreeAbbr")
+    .skip(page * limit)
+    .limit(limit);
+  return Course;
+}
+export async function getUniversityInstitutes(page: number, limit: number) {
   const Course = await InstituteModel.find({
-    name: "FUNAAB",
-  }).select("_id name fullname courseImg");
+    instutionType: { $regex: "University", $options: "i" },
+  })
+    .skip(page * limit)
+    .limit(limit);
   return Course;
 }

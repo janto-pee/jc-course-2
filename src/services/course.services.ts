@@ -24,17 +24,17 @@ export async function deleteCourse(id: string) {
 }
 
 export async function getFeaturedCourses(page: number, limit: number) {
-  const Course = await CourseModel.find()
-    .select("_id course courseImg")
+  const Course = await CourseModel.find({ isFeatured: true })
+    .select("_id schools course utme address years degreeAbbr")
     .skip(page * limit)
     .limit(limit);
   return Course;
 }
+
 export async function getUniversityCourses(page: number, limit: number) {
   const Course = await CourseModel.find({
     institutionType: "university",
   })
-    .select("_id course courseImg")
     .skip(page * limit)
     .limit(limit);
   return Course;

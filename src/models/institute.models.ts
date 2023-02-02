@@ -13,6 +13,8 @@ export interface InstituteInput {
   universityType?: string;
   entryReq?: string;
   directEntry?: string;
+  isFeatured?: Boolean;
+  position?: string;
 }
 
 export interface InstituteDocument extends InstituteInput, mongoose.Document {
@@ -24,17 +26,19 @@ export interface InstituteDocument extends InstituteInput, mongoose.Document {
 const InstittuteSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId },
-    institutionType: { type: String },
     name: { type: String },
-    fullname: { type: String },
     instituteSummary: { type: String },
+    fullname: { type: String },
     pmb: { type: String },
     address: { type: String },
     state: { type: String },
     tel: { type: String },
+    position: { type: String },
     universityType: { type: String },
     entryReq: { type: String },
     directEntry: { type: String },
+    isFeatured: { type: Boolean, default: false },
+    institutionType: { type: String },
   },
   { timestamps: true }
 );

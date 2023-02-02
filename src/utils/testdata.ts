@@ -69,6 +69,7 @@ export const primary = [
     courseSummary: "",
     institutionType: "University",
     image: "/accountancy/accounting-aaua",
+    isFeatured: true,
   },
   {
     id: 1,
@@ -108,5 +109,6 @@ export const primary = [
     mode: "FT/PT",
     institutionType: "College",
     image: "/businesseducation-agbor",
+    isFeatured: true,
   },
 ];

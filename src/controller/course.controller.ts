@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import { sendMail } from "../utils/nodemailer";
 
-import { findUser, findUserByEmail } from "../services/user.service";
+import { findUser } from "../services/user.service";
 import {
   createCourse,
   deleteCourse,
@@ -13,8 +13,6 @@ import {
 } from "../services/course.services";
 import { getCourseInput } from "../schemas/course.schema";
 import { getDistinctFields } from "../services/queries.service";
-import { getFips } from "crypto";
-import { orderBy } from "lodash";
 import CourseModel from "../models/course.model";
 
 export async function getAllCourseHandler(req: Request, res: Response) {
@@ -106,14 +104,15 @@ export async function getfeaturedCoursesHandler(req: Request, res: Response) {
   let page =
     typeof req.query.page !== "undefined" ? Number(req.query.page) - 1 : 0;
   let limit =
-    typeof req.query.lmino !== "undefined" ? Number(req.query.lmino) : 5;
+    typeof req.query.lmino !== "undefined" ? Number(req.query.lmino) : 10;
   try {
     const courses = await getFeaturedCourses(page, limit);
     const total = await CourseModel.countDocuments();
+    courses.length > 15 ? courses.filter((item, index) => index < 15) : courses;
     const response = {
       error: false,
       total,
-      "courses displayed": limit,
+      "courses displayed": courses.length,
       page: page + 1,
       courses,
     };
@@ -122,13 +121,15 @@ export async function getfeaturedCoursesHandler(req: Request, res: Response) {
     return res.status(400).send(error);
   }
 }
+
 export async function getUniversityCoursesHandler(req: Request, res: Response) {
   let page =
     typeof req.query.page !== "undefined" ? Number(req.query.page) - 1 : 0;
   let limit =
-    typeof req.query.lmino !== "undefined" ? Number(req.query.lmino) : 5;
+    typeof req.query.lmino !== "undefined" ? Number(req.query.lmino) : 10;
   try {
     const courses = await getUniversityCourses(page, limit);
+    courses.length > 15 ? courses.filter((item, index) => index < 15) : courses;
     const total = await CourseModel.countDocuments();
     const response = {
       error: false,
@@ -142,59 +143,62 @@ export async function getUniversityCoursesHandler(req: Request, res: Response) {
     return res.status(400).send(error);
   }
 }
-
 export async function getFilteredCoursesHandler(req: Request, res: Response) {
+  let search = req.query.search || "";
+  let department = req.query.department || "all";
+  let faculty = req.query.faculty || "all";
+  let institution = req.query.institution || "all";
   let page =
     typeof req.query.page !== "undefined" ? Number(req.query.page) - 1 : 0;
   let limit =
-    typeof req.query.limitno !== "undefined" ? Number(req.query.limitno) : 5;
-  let search = req.query.search || "";
-  let sort = req.query.sort || "department";
+    typeof req.query.wmtno !== "undefined" ? Number(req.query.wmtno) : 10;
 
   search === ""
     ? (search = {})
-    : (search = { name: { $regex: search, $options: "i" } });
+    : (search = { course: { $regex: search, $options: "i" } });
 
-  let department: any = req.query.department || "all";
-  let faculty: any = req.query.faculty || "all";
-  let institutions: any = req.query.institutions || "all";
+  faculty === "all" || ""
+    ? (faculty = {})
+    : (faculty = {
+        faculty: req.query.faculty?.toString().split(","),
+      });
+  department === "all" || ""
+    ? (department = {})
+    : (department = {
+        course: req.query.department?.toString().split(","),
+      });
+  institution === "all" || ""
+    ? (institution = {})
+    : (institution = {
+        institutionType: req.query.institution?.toString().split(","),
+      });
 
   try {
-    // get all distinct fields
+    const filter = {
+      ...search,
+      ...faculty,
+      ...department,
+      ...institution,
+    };
+
+    const courses = await CourseModel.find({ ...filter });
+    if (!courses) {
+      return res.status(400).send("an error occurred, unable to fetch");
+    }
+    courses.length > 15 ? courses.filter((item, index) => index < 15) : courses;
+    const total = await CourseModel.countDocuments();
     const distinctFields = await getDistinctFields();
 
-    department === "all"
-      ? (department = [...distinctFields.department])
-      : (department = req.query.department?.toString().split(","));
-
-    faculty === "all"
-      ? (faculty = [...distinctFields.faculty])
-      : (faculty = req.query.faculty?.toString().split(","));
-
-    institutions === "all"
-      ? (institutions = [...distinctFields.institution])
-      : (institutions = req.query.institutions?.toString().split(","));
-
-    const courses = await CourseModel.find(search)
-      .where("institutions, department, faculty")
-      .in([...institutions, ...faculty, ...department])
-      .skip(page * limit)
-      .limit(limit);
-
-    const total = await CourseModel.countDocuments({
-      search,
-    });
     const response = {
       error: false,
       total,
       page: page + 1,
-      limit,
-      institute: [...institutions],
-      faculty: [...faculty],
+      "displayed result": courses.length,
+      department: `over ${distinctFields.department.length} departments`,
+      faculty: distinctFields,
+      institution: distinctFields.institution,
       courses,
     };
     return res.status(200).send(response);
-  } catch (error) {
-    return res.status(400).send(error);
-  }
+  } catch (error) {}
 }
