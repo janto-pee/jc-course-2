@@ -13,9 +13,8 @@ app.use(express.json());
 app.use(deSerializeUser);
 app.use(router);
 
-const PORT = config.get<number>("port") || 3000;
+const PORT = config.get<string>("PORT") || 4100;
 
 app.listen(PORT, async () => {
   await connectToDB();
-  console.log(`listening on localhost:${PORT}`);
 });

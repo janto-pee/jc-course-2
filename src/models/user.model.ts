@@ -52,7 +52,6 @@ UserSchema.methods.comparePassword = async function (
   confirm_password: string
 ): Promise<boolean> {
   return bcrypt.compare(confirm_password, this.password).catch((e) => {
-    console.log(e);
     return false;
   });
 };

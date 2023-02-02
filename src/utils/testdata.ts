@@ -110,6 +110,3 @@ export const primary = [
     image: "/businesseducation-agbor",
   },
 ];
-
-const newInstitute = JSON.stringify(institute);
-console.log(newInstitute);

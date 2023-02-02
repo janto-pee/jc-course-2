@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import config from "config";
+import dotenv from "dotenv";
+dotenv.config();
 
 export async function connectToDB() {
   const dbURI = config.get<string>("db");
@@ -7,7 +9,6 @@ export async function connectToDB() {
     await mongoose.connect(dbURI);
     console.log("connected to database");
   } catch (error: any) {
-    console.log(error);
     process.exit(1);
   }
 }
