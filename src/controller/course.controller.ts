@@ -134,7 +134,7 @@ export async function getUniversityCoursesHandler(req: Request, res: Response) {
     const response = {
       error: false,
       total,
-      "courses displayed": limit,
+      "courses displayed": courses.length,
       page: page + 1,
       courses,
     };
@@ -143,6 +143,7 @@ export async function getUniversityCoursesHandler(req: Request, res: Response) {
     return res.status(400).send(error);
   }
 }
+
 export async function getFilteredCoursesHandler(req: Request, res: Response) {
   let search = req.query.search || "";
   let department = req.query.department || "all";
