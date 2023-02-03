@@ -146,7 +146,7 @@ export async function getFilteredInstitutesHandler(
     institutions === "all" || ""
       ? (institutions = {})
       : (institutions = {
-          instutionType: req.query.institutions?.toString().split(","),
+          institutionType: req.query.institutions?.toString().split(","),
         });
 
     const filter = {
@@ -155,7 +155,9 @@ export async function getFilteredInstitutesHandler(
       ...institutions,
     };
 
-    const institutes = await InstituteModel.find({ ...filter });
+    const institutes = await InstituteModel.find({
+      institutionType: "university",
+    });
     institutes.length > 15
       ? institutes.filter((item, index) => index < 15)
       : institutes;
