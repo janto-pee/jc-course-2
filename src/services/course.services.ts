@@ -33,7 +33,7 @@ export async function getFeaturedCourses(page: number, limit: number) {
 
 export async function getUniversityCourses(page: number, limit: number) {
   const Course = await CourseModel.find({
-    institutionType: "university",
+    institutionType: "University",
   })
     .skip(page * limit)
     .limit(limit);

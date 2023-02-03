@@ -146,7 +146,7 @@ export async function getFilteredInstitutesHandler(
     institutions === "all" || ""
       ? (institutions = {})
       : (institutions = {
-          institutionType: req.query.institutions?.toString().split(","),
+          instutionType: req.query.institutions?.toString().split(","),
         });
 
     const filter = {
