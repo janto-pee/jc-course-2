@@ -10,7 +10,7 @@ export async function getDistinctFields() {
 }
 export async function getDistinctInstituteFields() {
   const state = await InstituteModel.find().distinct("state");
-  const institution = await InstituteModel.find().distinct("instutionType");
+  const institution = await InstituteModel.find().distinct("institutionType");
   const res = { state, institution };
   return res;
 }

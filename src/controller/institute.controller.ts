@@ -42,26 +42,18 @@ export async function getAllInstitutesHandler(req: Request, res: Response) {
     return res.status(400).send(error);
   }
 }
-export async function getInstituteHandler(req: Request, res: Response) {
-  const { instituteId } = req.params;
-  try {
-    const institute = await getInstitute(instituteId);
-    return res.status(200).send(institute);
-  } catch (error) {
-    return res.status(400).send(error);
-  }
-}
 
 export async function createInstitutesHandler(req: Request, res: Response) {
-  const user = res.locals.user._doc._id;
+  // const user = res.locals.user._doc._id;
   const body = req.body;
   try {
-    const institute = await createInstitutes({ ...body, userId: user });
+    const institute = await createInstitutes({ ...body });
     res.status(200).send(`institute successfully created ${institute}`);
   } catch (error) {
     res.status(400).send(`an error occurred`);
   }
 }
+
 export async function updateInstituteHandler(req: Request, res: Response) {
   const user = res.locals.user._doc._id;
   const { instituteId } = req.params;
@@ -80,6 +72,7 @@ export async function updateInstituteHandler(req: Request, res: Response) {
     return res.status(400).send(error);
   }
 }
+
 export async function deleteInstituteHandler(req: Request, res: Response) {
   const { instituteId } = req.params;
   try {
@@ -89,6 +82,27 @@ export async function deleteInstituteHandler(req: Request, res: Response) {
     }
     await deleteInstitute(instituteId);
     return res.status(200).send(`institute successfully deleted`);
+  } catch (error) {
+    return res.status(400).send(error);
+  }
+}
+
+/*=============================================
+=            Exposed Route            =
+=============================================*/
+
+/*=====  End of Exposed Route  ======*/
+
+export async function getInstituteHandler(req: Request, res: Response) {
+  const { instituteId } = req.params;
+  try {
+    const institute = await getInstitute(instituteId);
+    if (!institute) return res.status(400).send("institute not found");
+    const total = {
+      error: false,
+      institute,
+    };
+    return res.status(200).send(total);
   } catch (error) {
     return res.status(400).send(error);
   }
@@ -137,7 +151,7 @@ export async function getFilteredInstitutesHandler(
 
     search === ""
       ? (search = {})
-      : (search = { fullname: { $regex: search, $options: "i" } });
+      : (search = { fullSchoolName: { $regex: search, $options: "i" } });
 
     state === "all"
       ? (state = {})
@@ -156,8 +170,11 @@ export async function getFilteredInstitutesHandler(
     };
 
     const institutes = await InstituteModel.find({
-      institutionType: "university",
-    });
+      ...filter,
+    })
+      .select("_id name instituteSummary fullname pmb address position tel")
+      .skip(page * limit)
+      .limit(limit);
     institutes.length > 15
       ? institutes.filter((item, index) => index < 15)
       : institutes;

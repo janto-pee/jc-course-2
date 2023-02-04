@@ -13,7 +13,9 @@ import {
 } from "../services/course.services";
 import { getCourseInput } from "../schemas/course.schema";
 import { getDistinctFields } from "../services/queries.service";
-import CourseModel from "../models/course.model";
+import CourseModel, { CourseDocument } from "../models/course.model";
+import { InstituteDocument } from "../models/institute.models";
+import mongoose from "mongoose";
 
 export async function getAllCourseHandler(req: Request, res: Response) {
   let page =
@@ -44,22 +46,11 @@ export async function getAllCourseHandler(req: Request, res: Response) {
   }
 }
 
-export async function getcourseHandler(req: Request, res: Response) {
-  const { courseId } = req.params;
-  try {
-    const course = await getCourse(courseId);
-    if (!course) return res.status(400).send("course not found");
-    return res.status(200).send(course);
-  } catch (error) {
-    return res.status(400).send(error);
-  }
-}
-
 export async function createCourseHandler(req: Request, res: Response) {
   const user = res.locals.user._doc._id;
   const body = req.body;
   try {
-    const course = await createCourse({ ...body, userId: user });
+    const course = await createCourse({ ...body });
     res.status(200).send(`course successfully created ${course}`);
   } catch (error) {
     res.status(400).send(`an error occurred ${error}`);
@@ -97,6 +88,27 @@ export async function deletecourseHandler(req: Request, res: Response) {
     return res.status(200).send(`course successfully deleted`);
   } catch (error) {
     return res.status(400).send(error);
+  }
+}
+
+/**
+ *
+ * Exposed API ROUTE
+ *
+ */
+
+export async function getcourseHandler(req: Request, res: Response) {
+  const { courseId } = req.params;
+  try {
+    const course = await getCourse(courseId);
+    if (!course) return res.status(400).send("course not found");
+    const total = {
+      error: false,
+      course,
+    };
+    return res.status(200).send(total);
+  } catch (error) {
+    return res.status(400).send("course not found");
   }
 }
 
@@ -182,7 +194,11 @@ export async function getFilteredCoursesHandler(req: Request, res: Response) {
       ...institution,
     };
 
-    const courses = await CourseModel.find({ ...filter });
+    const courses = await CourseModel.find({ ...filter })
+      .select("_id schools course utme address years degreeAbbr faculty")
+      .skip(page * limit)
+      .limit(limit);
+
     if (!courses) {
       return res.status(400).send("an error occurred, unable to fetch");
     }
@@ -201,5 +217,7 @@ export async function getFilteredCoursesHandler(req: Request, res: Response) {
       courses,
     };
     return res.status(200).send(response);
-  } catch (error) {}
+  } catch (error) {
+    return res.status(404).send(error);
+  }
 }

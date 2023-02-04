@@ -26,15 +26,16 @@ export async function deleteInstitute(id: string) {
 
 export async function getFeaturedInstitute(page: number, limit: number) {
   const Course = await InstituteModel.find({ isFeatured: true })
-    .select("_id schools course utme address years degreeAbbr")
+    .select(" _id name instituteSummary fullname pmb address position tel")
     .skip(page * limit)
     .limit(limit);
   return Course;
 }
 export async function getUniversityInstitutes(page: number, limit: number) {
   const Course = await InstituteModel.find({
-    instutionType: { $regex: "University", $options: "i" },
+    institutionType: { $regex: "University", $options: "i" },
   })
+    .select(" _id name instituteSummary fullname pmb address position tel")
     .skip(page * limit)
     .limit(limit);
   return Course;

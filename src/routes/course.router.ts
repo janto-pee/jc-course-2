@@ -14,10 +14,10 @@ const router = express.Router();
 
 // router.get("/", (_, res) => res.sendStatus(200).send("ok"));
 
-router.get("/", getAllCourseHandler);
-router.post("/", createCourseHandler);
-router.put("/:courseId", updatecourseHandler);
-router.delete("/:courseId", deletecourseHandler);
+// router.get("/", getAllCourseHandler);
+// router.post("/", createCourseHandler);
+// router.put("/:courseId", updatecourseHandler);
+// router.delete("/:courseId", deletecourseHandler);
 
 // external
 router.get("/featured", getfeaturedCoursesHandler); //home
