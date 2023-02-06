@@ -50,6 +50,7 @@ const InstittuteSchema = new mongoose.Schema(
 
 const InstituteModel = mongoose.model<InstituteDocument>(
   "Institute",
-  InstittuteSchema
+  InstittuteSchema,
+  "institutes"
 );
 export default InstituteModel;

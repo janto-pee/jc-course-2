@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { InstituteDocument, InstituteInput } from "./institute.models";
 
 export interface CourseInput {
-  utme: [string];
+  utme: string;
   course: string;
   image: string;
   schools: string;
@@ -66,5 +66,9 @@ const CourseSchema = new mongoose.Schema(
 //   type: mongoose.Schema.Types.ObjectId,
 //   ref: "Institute",
 // },
-const CourseModel = mongoose.model<CourseDocument>("Course", CourseSchema);
+const CourseModel = mongoose.model<CourseDocument>(
+  "Course",
+  CourseSchema,
+  "courses"
+);
 export default CourseModel;
