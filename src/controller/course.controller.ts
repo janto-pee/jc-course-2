@@ -212,7 +212,6 @@ export async function getFilteredCoursesHandler(req: Request, res: Response) {
       page: page + 1,
       "displayed result": courses.length,
       department: `over ${distinctFields.department.length} departments`,
-      faculty: distinctFields,
       institution: distinctFields.institution,
       courses,
     };
