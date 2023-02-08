@@ -45,7 +45,7 @@ export async function getUniversityCourses(page: number, limit: number) {
   const Course = await CourseModel.find({
     institutionType: "university",
   })
-    .select("_id schools course utme address years degreeAbbr faculty")
+    // .select("_id schools course utme address years degreeAbbr faculty")
     .skip(page * limit)
     .limit(limit);
   return Course;

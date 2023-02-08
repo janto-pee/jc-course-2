@@ -14,8 +14,8 @@ import {
 import { getCourseInput } from "../schemas/course.schema";
 import { getDistinctFields } from "../services/queries.service";
 import CourseModel, { CourseDocument } from "../models/course.model";
-import { InstituteDocument } from "../models/institute.models";
-import mongoose from "mongoose";
+import InstituteModel, { InstituteDocument } from "../models/institute.models";
+import { ObjectId } from "bson";
 
 export async function getAllCourseHandler(req: Request, res: Response) {
   let page =
@@ -47,11 +47,18 @@ export async function getAllCourseHandler(req: Request, res: Response) {
 }
 
 export async function createCourseHandler(req: Request, res: Response) {
-  const user = res.locals.user._doc._id;
+  // const user = res.locals.user._doc._id;
   const body = req.body;
   try {
-    const course = await createCourse({ ...body });
+    const institute = await InstituteModel.findOne({ name: body.schools });
+    console.log("institute name", institute);
+    const instituteP = institute?._id;
+    if (!instituteP) {
+      return res.status(300).send("incomplete");
+    }
+    const course = await createCourse({ ...body, instituteProp: instituteP });
     res.status(200).send(`course successfully created ${course}`);
+    return;
   } catch (error) {
     res.status(400).send(`an error occurred ${error}`);
   }
