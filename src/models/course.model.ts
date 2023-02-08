@@ -21,11 +21,6 @@ export interface CourseInput {
   institutionType: string;
 }
 
-// address: InstituteDocument["address"];
-// fullSchoolName?: InstituteDocument["fullname"];
-// entryRequirement?: InstituteDocument["entryReq"];
-// postUtme?: InstituteDocument["postUtme"];
-// schoolFee?: InstituteDocument["feesAndFunding"];
 export interface CourseDocument extends CourseInput, mongoose.Document {
   instituteProp: InstituteDocument["_id"];
   createdAt: Date;
@@ -58,14 +53,6 @@ const CourseSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// postUtme: { type: mongoose.Schema.Types.ObjectId, ref: "Institute" },
-// schoolFee: { type: mongoose.Schema.Types.ObjectId, ref: "Institute" },
-// address: { type: mongoose.Schema.Types.ObjectId, ref: "Institute" },
-// fullSchoolName: { type: mongoose.Schema.Types.ObjectId, ref: "Institute" },
-// entryRequirement: {
-//   type: mongoose.Schema.Types.ObjectId,
-//   ref: "Institute",
-// },
 const CourseModel = mongoose.model<CourseDocument>(
   "Course",
   CourseSchema,
