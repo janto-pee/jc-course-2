@@ -8,7 +8,7 @@ import { deSerializeUser } from "./middleware/deserializeUser";
 dotenv.config();
 
 const app = express();
-// app.use(corsOption);
+app.use(corsOption);
 app.use(express.json());
 app.use(deSerializeUser);
 app.use(router);
