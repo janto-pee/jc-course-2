@@ -16,6 +16,7 @@ module.exports = {
   aTPK: process.env.accessTokenPublicKey,
   rTPrK: process.env.refreshTokenPrivateKey,
   rTPK: process.env.refreshTokenPublicKey,
+
   aTTTL: process.env.aTTTL,
   rTTTL: process.env.rTTTL,
 };
